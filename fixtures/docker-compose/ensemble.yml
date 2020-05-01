@@ -1,0 +1,76 @@
+version: '2.4'
+
+x-common: &common
+  image: zookeeper:3.5
+  init: true
+  restart: unless-stopped
+
+x-env-common: &common-env
+  ZOO_SERVERS: |-
+    server.10=zk10:2888:3888;2181
+    server.20=zk20:2888:3888;2181
+    server.30=zk30:2888:3888;2181
+    server.41=zk41:2888:3888:observer;2181
+    server.51=zk51:2888:3888:observer;2181
+  ZOO_4LW_COMMANDS_WHITELIST: "*"
+
+services:
+  zk10:
+    <<: *common
+    hostname: zk10
+    ports:
+      - 12181:2181
+    volumes:
+      - ".data/ensemble/10/data:/data"
+      - ".data/ensemble/10/datalog:/datalog"
+    environment:
+      ZOO_MY_ID: 10
+      <<: *common-env
+
+  zk20:
+    <<: *common
+    hostname: zk20
+    ports:
+      - 22181:2181
+    volumes:
+      - ".data/ensemble/20/data:/data"
+      - ".data/ensemble/20/datalog:/datalog"
+    environment:
+      ZOO_MY_ID: 20
+      <<: *common-env
+
+  zk30:
+    <<: *common
+    hostname: zk30
+    ports:
+      - 32181:2181
+    volumes:
+      - ".data/ensemble/30/data:/data"
+      - ".data/ensemble/30/datalog:/datalog"
+    environment:
+      ZOO_MY_ID: 30
+      <<: *common-env
+
+  zk41:
+    <<: *common
+    hostname: zk41
+    ports:
+      - 42181:2181
+    volumes:
+      - ".data/ensemble/41/data:/data"
+      - ".data/ensemble/41/datalog:/datalog"
+    environment:
+      ZOO_MY_ID: 41
+      <<: *common-env
+
+  zk51:
+    <<: *common
+    hostname: zk51
+    ports:
+      - 52181:2181
+    volumes:
+      - ".data/ensemble/51/data:/data"
+      - ".data/ensemble/51/datalog:/datalog"
+    environment:
+      ZOO_MY_ID: 51
+      <<: *common-env

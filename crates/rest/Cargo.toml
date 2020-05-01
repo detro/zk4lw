@@ -1,0 +1,18 @@
+[package]
+name = "zk4lw-rest"
+version = "0.0.1"
+edition = "2018"
+authors = ["Ivan De Marino <detronizator@gmail.com>"]
+
+description = """
+Web-server offering a REST API interface to executes "4lw" (Four Letter Word) Commands against Zookeeper.
+Command responses are provided in JSON format.
+"""
+
+[[bin]]
+name = "zk4lw_rest"
+path = "src/main.rs"
+
+[dependencies]
+failure = "0.1.7"
+zk4lw-client = { version = "0.0.1", path = "../client" }

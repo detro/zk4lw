@@ -1,0 +1,20 @@
+version: '2.4'
+
+x-common: &common
+  image: zookeeper:3.5
+  init: true
+  restart: unless-stopped
+  volumes:
+    - ".data/standalone/data:/data"
+    - ".data/standalone/datalog:/datalog"
+
+x-env-common: &common-env
+  ZOO_4LW_COMMANDS_WHITELIST: "*"
+
+services:
+  zk-standalone:
+    <<: *common
+    ports:
+      - 2181:2181
+    environment:
+      <<: *common-env
