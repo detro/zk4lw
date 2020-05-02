@@ -56,7 +56,7 @@ For a Standalone:
 
 ## License
 
-TODO
+[Apache 2.0](./LICENSE)
 
 ## Credits
 
