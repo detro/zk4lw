@@ -36,16 +36,13 @@ Usage:
 Options:
   attach    After launch, place Docker Compose logs in foreground (only for 'up' action)
   clean     After shutdown, delete any data directory (only for 'down' action)
-
 ```
 
 For a full Ensemble:
 
 ```shell
 ↳ ./compose.sh ensemble up
-
 # ... do your work ...
-
 ↳ ./compose.sh ensemble down
 ```
 
@@ -53,9 +50,7 @@ For a Standalone:
 
 ```shell
 ↳ ./compose.sh standalone up
-
 # ... do your work ...
-
 ↳ ./compose.sh standalone down
 ``` 
 
