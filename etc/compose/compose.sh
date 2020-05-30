@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-COMPOSE_DIR="${SCRIPT_DIR}/fixtures/docker-compose"
+COMPOSE_DIR="${SCRIPT_DIR}"
 COMPOSE_DATA_DIR="${COMPOSE_DIR}/.data"
 
 ! which docker-compose >/dev/null && echo "ERROR: Requires Docker Compose" && exit 1
 
-if [[ $# -lt 2 ]] || [[ $# -gt 3 ]]; then
+if [[ $# -lt 3 ]] || [[ $# -gt 4 ]]; then
   echo "Description:"
   echo "  Spins up and shuts down dependencies for this application, using Docker Compose."
   echo "  This is useful for local development/testing."
   echo ""
   echo "Usage:"
-  echo "  $(basename ${BASH_SOURCE}) <TYPE: ensemble|standalone> <ACTION: up|down> [OPTION: attach|clean]"
+  echo "  $(basename ${BASH_SOURCE}) <VERSION: 3.4|3.5|3.6> <TYPE: ensemble|standalone> <ACTION: up|down> [OPTION: attach|clean]"
   echo ""
   echo "Options:"
   echo "  attach    After launch, place Docker Compose logs in foreground (only for 'up' action)"
@@ -21,12 +21,13 @@ if [[ $# -lt 2 ]] || [[ $# -gt 3 ]]; then
   exit 1
 fi
 
-TYPE=${1}
-ACTION=${2}
-OPTION=${3}
-COMPOSE_FILE="${COMPOSE_DIR}/${TYPE}.yml"
+VERSION=${1}
+TYPE=${2}
+ACTION=${3}
+OPTION=${4}
+COMPOSE_FILE="${COMPOSE_DIR}/${TYPE}-${VERSION}.yml"
 
-[[ ! -f ${COMPOSE_FILE} ]] && echo "ERROR: Unknown compose type" && exit 1
+[[ ! -f ${COMPOSE_FILE} ]] && echo "ERROR: Unknown compose setup: '${COMPOSE_FILE}'" && exit 1
 
 if [[ ${ACTION} == "up" ]]; then
 
@@ -44,6 +45,6 @@ elif [[ ${ACTION} == "down" ]]; then
   fi
 
 else
-  echo "Error: unknown action '${COMPOSE_ACTION}'"
+  echo "Error: unknown action '${ACTION}'"
   exit 1
 fi

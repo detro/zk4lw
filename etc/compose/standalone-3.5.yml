@@ -5,8 +5,8 @@ x-common: &common
   init: true
   restart: unless-stopped
   volumes:
-    - ".data/standalone/data:/data"
-    - ".data/standalone/datalog:/datalog"
+    - "./.data/3.5/standalone/data:/data"
+    - "./.data/3.5/standalone/datalog:/datalog"
 
 x-env-common: &common-env
   ZOO_4LW_COMMANDS_WHITELIST: "*"

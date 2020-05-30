@@ -8,4 +8,4 @@ target/
 .idea/
 
 # Docker Compose local volume
-.data/
+/etc/compose/.data/
