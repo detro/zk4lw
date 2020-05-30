@@ -1,4 +1,9 @@
 //! The 4LW Monitor command. Also known as "mntr".
+//!
+//! This command outputs a list of variables that could be used for
+//! monitoring the health of the cluster.
+//!
+//! Available since: ZooKeeper 3.4.0
 
 use std::collections::HashMap;
 
