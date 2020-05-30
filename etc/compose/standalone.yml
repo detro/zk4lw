@@ -1,15 +1,16 @@
 version: '2.4'
 
 x-common: &common
-  image: zookeeper:3.5
+  image: zookeeper:${ZK_VERSION}
   init: true
   restart: unless-stopped
   volumes:
-    - "./.data/3.5/standalone/data:/data"
-    - "./.data/3.5/standalone/datalog:/datalog"
+    - "./${ZK_LOCAL_DATA_DIR}/${ZK_VERSION}/standalone/data:/data"
+    - "./${ZK_LOCAL_DATA_DIR}/${ZK_VERSION}/standalone/datalog:/datalog"
 
 x-env-common: &common-env
   ZOO_4LW_COMMANDS_WHITELIST: "*"
+  ZOO_MY_ID: 42
 
 services:
   zk-standalone:

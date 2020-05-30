@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-COMPOSE_DIR="${SCRIPT_DIR}"
-COMPOSE_DATA_DIR="${COMPOSE_DIR}/.data"
+DATA_DIR=".data"
+SUPPORTED_VERSIONS=(3.4 3.5 3.6)
+REQUIRE_CLIENT_PORT_SUFFIX=(3.5 3.6)
+
+COMPOSE_ABS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+COMPOSE_ABS_DATA_DIR="${COMPOSE_ABS_DIR}/${DATA_DIR}"
 
 ! which docker-compose >/dev/null && echo "ERROR: Requires Docker Compose" && exit 1
 
@@ -25,25 +28,37 @@ VERSION=${1}
 TYPE=${2}
 ACTION=${3}
 OPTION=${4}
-COMPOSE_FILE="${COMPOSE_DIR}/${TYPE}-${VERSION}.yml"
+COMPOSE_FILE="${COMPOSE_ABS_DIR}/${TYPE}.yml"
 
-[[ ! -f ${COMPOSE_FILE} ]] && echo "ERROR: Unknown compose setup: '${COMPOSE_FILE}'" && exit 1
+# --------------------------------------------------------------- VALIDATE INPUT
+[[ ! -f ${COMPOSE_FILE} ]] && echo "ERROR: Unknown compose setup: ${COMPOSE_FILE}" && exit 1
+[[ ! "${SUPPORTED_VERSIONS[@]}" =~ "${VERSION}" ]] && echo "ERROR: Unsupported version: ${VERSION}" && exit 1
 
+CLIENT_PORT_SUFFIX=""
+[[ "${REQUIRE_CLIENT_PORT_SUFFIX[@]}" =~ "${VERSION}" ]] && CLIENT_PORT_SUFFIX=";2181"
+
+# ---------------------------------------------------------------------- EXECUTE
 if [[ ${ACTION} == "up" ]]; then
-
   if [[ ${OPTION} == "attach" ]]; then
-    docker-compose -f ${COMPOSE_FILE} up
+    ZK_VERSION=${VERSION} \
+    ZK_LOCAL_DATA_DIR=${DATA_DIR} \
+    ZK_CLIENT_PORT_SUFFIX=${CLIENT_PORT_SUFFIX} \
+        docker-compose -f ${COMPOSE_FILE} up
   else
-    docker-compose -f ${COMPOSE_FILE} up --detach
+    ZK_VERSION=${VERSION} \
+    ZK_LOCAL_DATA_DIR=${DATA_DIR} \
+    ZK_CLIENT_PORT_SUFFIX=${CLIENT_PORT_SUFFIX} \
+        docker-compose -f ${COMPOSE_FILE} up --detach
   fi
-
 elif [[ ${ACTION} == "down" ]]; then
-  docker-compose -f ${COMPOSE_FILE} down --remove-orphans --volumes
+  ZK_VERSION=${VERSION} \
+  ZK_LOCAL_DATA_DIR=${DATA_DIR} \
+  ZK_CLIENT_PORT_SUFFIX=${CLIENT_PORT_SUFFIX} \
+    docker-compose -f ${COMPOSE_FILE} down --remove-orphans --volumes
 
   if [[ ${OPTION} == "clean" ]]; then
-    rm -r ${COMPOSE_DATA_DIR}
+    rm -r ${COMPOSE_ABS_DATA_DIR}
   fi
-
 else
   echo "Error: unknown action '${ACTION}'"
   exit 1
