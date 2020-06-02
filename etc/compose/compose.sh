@@ -11,7 +11,7 @@ COMPOSE_ABS_DATA_DIR="${COMPOSE_ABS_DIR}/${DATA_DIR}"
 
 if [[ $# -lt 3 ]] || [[ $# -gt 4 ]]; then
   echo "Description:"
-  echo "  Spins up and shuts down dependencies for this application, using Docker Compose."
+  echo "  Spins up and shuts down ZooKeeper, using Docker Compose."
   echo "  This is useful for local development/testing."
   echo ""
   echo "Usage:"

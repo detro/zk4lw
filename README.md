@@ -9,9 +9,9 @@ TODO Description goes here
 
 ## Supported ZooKeeper versions
 
-* TODO: 3.4.x
+* 3.4.x
 * 3.5.x
-* TODO: 3.6.x
+* 3.6.x
 
 ## Development
 
@@ -25,34 +25,36 @@ TODO Description goes here
 You could use the provided `./compose.sh` for a "batteries included" setup:
 
 ```shell
-↳ ./compose.sh
+↳ ./etc/compose/compose.sh
 Description:
-  Spins up and shuts down dependencies for this application, using Docker Compose.
+  Spins up and shuts down ZooKeeper, using Docker Compose.
   This is useful for local development/testing.
 
 Usage:
-  compose.sh <TYPE: ensemble|standalone> <ACTION: up|down> [OPTION: attach|clean]
+  compose.sh <VERSION: 3.4|3.5|3.6> <TYPE: ensemble|standalone> <ACTION: up|down> [OPTION: attach|clean]
 
 Options:
   attach    After launch, place Docker Compose logs in foreground (only for 'up' action)
   clean     After shutdown, delete any data directory (only for 'down' action)
 ```
 
-For a full Ensemble:
+For example, to spin up a ZooKeeper 3.5 ensemble:
 
 ```shell
-↳ ./compose.sh ensemble up
+↳ ./etc/compose/compose.sh 3.5 ensemble up
 # ... do your work ...
-↳ ./compose.sh ensemble down
+↳ ./etc/compose/compose.sh 3.5 ensemble down
 ```
 
-For a Standalone:
+Another example, to spin up a ZooKeeper 3.6 standalone:
 
 ```shell
-↳ ./compose.sh standalone up
+↳ ./etc/compose/compose.sh 3.6 standalone up
 # ... do your work ...
-↳ ./compose.sh standalone down
-``` 
+↳ ./etc/compose/compose.sh 3.6 standalone down
+```
+
+And so on. You get the idea.
 
 ## License
 
