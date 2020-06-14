@@ -1,0 +1,14 @@
+clientPort=2181
+dataDir=/data/version-2
+dataLogDir=/datalog/version-2
+electionAlg=3
+electionPort=3888
+initLimit=5
+maxClientCnxns=60
+maxSessionTimeout=40000
+minSessionTimeout=4000
+peerType=0
+quorumPort=2888
+serverId=10
+syncLimit=2
+tickTime=2000
