@@ -1,21 +1,22 @@
 //! Representation of the State of a Zookeeper Server.
 
+use std::{default, fmt, str};
+
 use super::result::ZK4LWError;
-use std::str::FromStr;
-use std::fmt;
 
 const STATE_LEADER: &'static str = "leader";
 const STATE_FOLLOWER: &'static str = "follower";
 const STATE_STANDALONE: &'static str = "standalone";
 
 /// The state of a Zookeeper server, as reported for example by the Monitor command
+#[derive(PartialEq)]
 pub enum ZK4LWServerState {
     LEADER,
     FOLLOWER,
     STANDALONE,
 }
 
-impl FromStr for ZK4LWServerState {
+impl str::FromStr for ZK4LWServerState {
     type Err = ZK4LWError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -35,5 +36,11 @@ impl fmt::Debug for ZK4LWServerState {
             ZK4LWServerState::FOLLOWER => write!(f, "{}", STATE_FOLLOWER),
             ZK4LWServerState::STANDALONE => write!(f, "{}", STATE_STANDALONE),
         }
+    }
+}
+
+impl default::Default for ZK4LWServerState {
+    fn default() -> Self {
+        ZK4LWServerState::STANDALONE
     }
 }
