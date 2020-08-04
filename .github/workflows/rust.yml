@@ -1,22 +1,25 @@
-name: Rust
+name: Build & Test Rust Project
 
+# Triggers
 on:
   push:
-    branches: [ master ]
+    branches:
+      - master
   pull_request:
-    branches: [ master ]
+    branches:
+      - master
 
+# Environment variables (available to all jobs)
 env:
   CARGO_TERM_COLOR: always
 
+# Jobs composing the action workflow
 jobs:
-  build:
-
+  build-and-test:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Build
       run: cargo build --verbose
-    - name: Run tests
+    - name: Test
       run: cargo test --verbose
