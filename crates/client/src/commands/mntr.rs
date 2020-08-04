@@ -221,7 +221,38 @@ mod tests {
     }
 
     #[test]
-    fn should_build_response_from_zk36_mntr_response_body() {
-        // TODO
+    fn should_build_response_from_zk36_monitor_response_body() {
+        let mntr_36_resp_body = fs::read_to_string("../../fixtures/3.6/mntr.response").unwrap();
+        let mntr_36_resp = ZK4LWMonitor::build_response(mntr_36_resp_body.as_str()).unwrap();
+
+        assert_eq!(mntr_36_resp.version, "3.6.1");
+        assert_eq!(
+            mntr_36_resp.build_revision,
+            "104dcb3e3fb464b30c5186d229e00af9f332524b"
+        );
+        assert_eq!(mntr_36_resp.build_date, "built on 04/21/2020 15:01 GMT");
+        assert_eq!(mntr_36_resp.latency.avg, 0.0);
+        assert_eq!(mntr_36_resp.latency.min, 0);
+        assert_eq!(mntr_36_resp.latency.max, 0);
+        assert_eq!(mntr_36_resp.packets_received, 2);
+        assert_eq!(mntr_36_resp.packets_sent, 3);
+        assert_eq!(mntr_36_resp.num_alive_connections, 1);
+        assert_eq!(mntr_36_resp.outstanding_requests, 0);
+        assert_eq!(mntr_36_resp.server_state, LEADER);
+        assert_eq!(mntr_36_resp.znode_count, 5);
+        assert_eq!(mntr_36_resp.watch_count, 0);
+        assert_eq!(mntr_36_resp.ephemerals_count, 0);
+        assert_eq!(mntr_36_resp.approximate_data_size, 297);
+        assert_eq!(mntr_36_resp.open_file_descriptor_count.unwrap(), 67);
+        assert_eq!(mntr_36_resp.max_file_descriptor_count.unwrap(), 1048576);
+        // TODO absent:
+        //assert_eq!(mntr_36_resp.followers.unwrap(), 4);
+        assert_eq!(mntr_36_resp.synced_followers.unwrap(), 2);
+        assert_eq!(mntr_36_resp.pending_syncs.unwrap(), 0);
+        assert_eq!(mntr_36_resp.last_proposal_size.unwrap(), -1);
+        assert_eq!(mntr_36_resp.min_proposal_size.unwrap(), -1);
+        assert_eq!(mntr_36_resp.max_proposal_size.unwrap(), -1);
+        // TODO lots of fields to add:
+        //assert_eq!(mntr_36_resp.misc.len(), 0);
     }
 }

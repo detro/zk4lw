@@ -2,14 +2,14 @@
 
 use std::default::Default;
 
-/// Sample of Metric, as returned by ZooKeeper
+/// Sample of Time-related Metric, as returned by ZooKeeper
 ///
-/// It's associated with a specific Metric, and represents a "snapshot" of it
-/// at the time of collection.
+/// It's associated with a specific Time-related Metric, and represents a
+/// "snapshot", a "sample" of the metrics at the time of collection.
 ///
 /// Not all fields are present, but it depends on the specific ZooKeeper version.
 #[derive(Debug)]
-pub struct ZK4LWMetricSample {
+pub struct ZK4LWTimeMetricSample {
     /// Average
     pub avg: f64,
     /// Maximum
@@ -28,6 +28,53 @@ pub struct ZK4LWMetricSample {
     pub p99: Option<i64>,
     /// 999 Percentile
     pub p999: Option<i64>,
+}
+
+impl ZK4LWTimeMetricSample {
+    pub fn new(avg: f64, max: i64, min: i64) -> Self {
+        ZK4LWTimeMetricSample {
+            avg,
+            max,
+            min,
+            ..Default::default()
+        }
+    }
+}
+
+impl Default for ZK4LWTimeMetricSample {
+    fn default() -> Self {
+        ZK4LWTimeMetricSample {
+            avg: 0.0,
+            max: 0,
+            min: 0,
+            count: None,
+            sum: None,
+            p50: None,
+            p95: None,
+            p99: None,
+            p999: None,
+        }
+    }
+}
+
+/// Sample of Metric, as returned by ZooKeeper
+///
+/// It's associated with a specific Metric, and represents a
+/// "snapshot", a "sample" of the metrics at the time of collection.
+///
+/// Not all fields are present, but it depends on the specific ZooKeeper version.
+#[derive(Debug)]
+pub struct ZK4LWMetricSample {
+    /// Average
+    pub avg: f64,
+    /// Maximum
+    pub max: i64,
+    /// Minimum
+    pub min: i64,
+    /// Count
+    pub count: Option<i64>,
+    /// Sum
+    pub sum: Option<i64>,
 }
 
 impl ZK4LWMetricSample {
@@ -49,10 +96,6 @@ impl Default for ZK4LWMetricSample {
             min: 0,
             count: None,
             sum: None,
-            p50: None,
-            p95: None,
-            p99: None,
-            p999: None,
         }
     }
 }
