@@ -6,12 +6,15 @@ const LINE_SEPARATOR: &'static str = "\n";
 const KEY_VAL_EQUAL_SEPARATOR: &'static str = "=";
 const KEY_VAL_TAB_SEPARATOR: &'static str = "\t";
 
-fn bytes_to_key_value<'a>(input_utf8: &'a str, separator: &'static str) -> ZK4LWResult<HashMap<&'a str, &'a str>> {
+fn bytes_to_key_value<'a>(
+    input_utf8: &'a str,
+    separator: &'static str,
+) -> ZK4LWResult<HashMap<&'a str, &'a str>> {
     Ok(input_utf8
         .split_terminator(LINE_SEPARATOR)
         .map(|line| line.split_terminator(separator))
         .map(|mut key_val_seq| (key_val_seq.next(), key_val_seq.next()))
-        .filter(|(k, v)| k.is_some() && v.is_some())                        //< Skip lines that don't split by given separator
+        .filter(|(k, v)| k.is_some() && v.is_some()) //< Skip lines that don't split by given separator
         .map(|(k, v)| (k.unwrap().trim().into(), v.unwrap().trim().into()))
         .collect::<HashMap<&str, &str>>())
 }
@@ -30,10 +33,7 @@ pub fn equal_separated_bytes_to_key_value(input_utf8: &str) -> ZK4LWResult<HashM
 mod tests {
     use std::fs;
 
-    use crate::parsing::{
-        equal_separated_bytes_to_key_value,
-        tab_separated_bytes_to_key_value,
-    };
+    use crate::parsing::{equal_separated_bytes_to_key_value, tab_separated_bytes_to_key_value};
 
     #[test]
     fn should_parse_tab_separated_bytes_to_key_value() {
