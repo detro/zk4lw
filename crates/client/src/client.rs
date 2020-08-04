@@ -15,14 +15,14 @@ pub trait ZK4LWCommand {
     /// Response produced by a successful execution of the command
     type Response;
 
-    /// String needed to send the request
-    fn request_str() -> &'static str;
+    /// Returns an `str` needed to send the request
+    fn request_body() -> &'static str;
 
-    /// Parse the response and returns a result `ZK4LWResult`
+    /// Builds and returns a `ZK4LWResult` of `Response` type
     ///
     /// # Arguments
-    /// * `body` - A string slice containing the raw response for the given request
-    fn parse_response(body: &str) -> ZK4LWResult<Self::Response>;
+    /// * `response_body` - A `str` slice containing the raw response body from a given request
+    fn build_response(response_body: &str) -> ZK4LWResult<Self::Response>;
 }
 
 /// The Zookeeper "Four Letter Words" client
@@ -46,17 +46,23 @@ impl ZK4LWClient {
 
     /// Execute the given command and return a result containing the response
     pub fn execute<C: ZK4LWCommand>(&self) -> ZK4LWResult<C::Response>
-        where
-            C: ZK4LWCommand,
+    where
+        C: ZK4LWCommand,
     {
+        // Connect TCP socket to ZooKeeper server
         let mut stream = net::TcpStream::connect((self.host.as_str(), self.port))?;
 
-        stream.write_all(C::request_str().as_bytes())?;
+        // Send 4LW command
+        stream.write_all(C::request_body().as_bytes())?;
 
+        // Read the whole response to buffer
         let mut response_buffer = Vec::new();
         stream.read_to_end(&mut response_buffer)?;
+
+        // Convert buffer to &str
         let response_body = str::from_utf8(&response_buffer)?;
 
-        C::parse_response(response_body)
+        // Produce final response
+        C::build_response(response_body)
     }
 }
