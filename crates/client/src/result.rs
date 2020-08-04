@@ -8,6 +8,9 @@ pub enum ZK4LWError {
     #[fail(display = "Failed to parse integer: {}", _0)]
     ParseIntError(#[cause] num::ParseIntError),
 
+    #[fail(display = "Failed to parse float: {}", _0)]
+    ParseFloatError(#[cause] num::ParseFloatError),
+
     #[fail(display = "Failed to parse string: {}", _0)]
     ParseStringError(String),
 
@@ -27,6 +30,12 @@ impl From<num::ParseIntError> for ZK4LWError {
     }
 }
 
+impl From<num::ParseFloatError> for ZK4LWError {
+    fn from(val: num::ParseFloatError) -> Self {
+        Self::ParseFloatError(val)
+    }
+}
+
 impl From<io::Error> for ZK4LWError {
     fn from(val: io::Error) -> Self {
         Self::IoError(val)
@@ -41,15 +50,3 @@ impl From<str::Utf8Error> for ZK4LWError {
 
 /// Result produced by the execution of a `ZK4LWCommand` using the `ZK4LWClient`
 pub type ZK4LWResult<T> = result::Result<T, ZK4LWError>;
-
-#[macro_export]
-macro_rules! unwrap_or_error {
-    ($($name:ident)*) => {
-        $(
-            match $name {
-                Some(v) => v,
-                None => return Err(ZK4LWError::MissingFieldError(stringify!($name))),
-            }
-        )*
-    }
-}
