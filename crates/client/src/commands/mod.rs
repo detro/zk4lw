@@ -6,6 +6,5 @@
 //! [3.5](https://zookeeper.apache.org/doc/r3.5.8/zookeeperAdmin.html#sc_4lw)
 //! [3.6](https://zookeeper.apache.org/doc/r3.6.1/zookeeperAdmin.html#sc_4lw)
 
+pub mod common;
 pub mod mntr;
-
-

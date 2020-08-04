@@ -7,11 +7,15 @@
 
 use std::collections::HashMap;
 
-use crate::unwrap_or_error;
-
-use super::super::client::*;
-use super::super::result::{ZK4LWError, ZK4LWResult};
-use super::super::state::ZK4LWServerState;
+use super::{
+    super::{
+        client::*,
+        parsing::tab_separated_bytes_to_key_value,
+        result::{ZK4LWError, ZK4LWResult},
+        state::ZK4LWServerState,
+    },
+    common::ZK4LWMetricSample,
+};
 
 const COMMAND: &'static str = "mntr";
 
@@ -19,41 +23,41 @@ const COMMAND: &'static str = "mntr";
 ///
 /// The fields here are what's defined in the docs as of 2018/02/23.
 /// Additional fields are stored as strings within zk_extras.
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct ZK4LWMonitorResponse {
     // version
-    pub zk_version: String,
+    pub version: String,
+    pub build_revision: String,
+    pub build_date: String,
     // latency
-    pub zk_avg_latency: i64,
-    pub zk_max_latency: i64,
-    pub zk_min_latency: i64,
+    pub latency: ZK4LWMetricSample,
     // packets
-    pub zk_packets_received: i64,
-    pub zk_packets_sent: i64,
+    pub packets_received: i64,
+    pub packets_sent: i64,
     // connections & requests
-    pub zk_num_alive_connections: i64,
-    pub zk_outstanding_requests: i64,
+    pub num_alive_connections: i64,
+    pub outstanding_requests: i64,
     // state
-    pub zk_server_state: ZK4LWServerState,
+    pub server_state: ZK4LWServerState,
     // znodes
-    pub zk_znode_count: i64,
-    pub zk_watch_count: i64,
-    pub zk_ephemerals_count: i64,
+    pub znode_count: i64,
+    pub watch_count: i64,
+    pub ephemerals_count: i64,
     // data size
-    pub zk_approximate_data_size: i64,
+    pub approximate_data_size: i64,
     // file descriptors
-    pub zk_open_file_descriptor_count: Option<i64>,
-    pub zk_max_file_descriptor_count: Option<i64>,
+    pub open_file_descriptor_count: Option<i64>,
+    pub max_file_descriptor_count: Option<i64>,
     // followers (only for leader)
-    pub zk_followers: Option<i64>,
-    pub zk_synced_followers: Option<i64>,
-    pub zk_pending_syncs: Option<i64>,
+    pub followers: Option<i64>,
+    pub synced_followers: Option<i64>,
+    pub pending_syncs: Option<i64>,
     // proposals (only for leader)
-    pub zk_last_proposal_size: Option<i64>,
-    pub zk_max_proposal_size: Option<i64>,
-    pub zk_min_proposal_size: Option<i64>,
-    // unknown/new fields (only for leader)
-    pub zk_extras: HashMap<String, String>,
+    pub last_proposal_size: Option<i64>,
+    pub max_proposal_size: Option<i64>,
+    pub min_proposal_size: Option<i64>,
+    // unknown/unmapped fields
+    pub misc: HashMap<String, String>,
 }
 
 /// The Monitor (i.e. "mntr") command
@@ -62,105 +66,162 @@ pub struct ZK4LWMonitor;
 impl ZK4LWCommand for ZK4LWMonitor {
     type Response = ZK4LWMonitorResponse;
 
-    fn request_str() -> &'static str {
+    fn request_body() -> &'static str {
         COMMAND
     }
 
-    fn parse_response(response: &str) -> ZK4LWResult<Self::Response> {
-        let mut zk_version: Option<String> = None;
-        let mut zk_avg_latency: Option<i64> = None;
-        let mut zk_max_latency: Option<i64> = None;
-        let mut zk_min_latency: Option<i64> = None;
-        let mut zk_packets_received: Option<i64> = None;
-        let mut zk_packets_sent: Option<i64> = None;
-        let mut zk_num_alive_connections: Option<i64> = None;
-        let mut zk_outstanding_requests: Option<i64> = None;
-        let mut zk_server_state: Option<ZK4LWServerState> = None;
-        let mut zk_znode_count: Option<i64> = None;
-        let mut zk_watch_count: Option<i64> = None;
-        let mut zk_ephemerals_count: Option<i64> = None;
-        let mut zk_approximate_data_size: Option<i64> = None;
-        let mut zk_open_file_descriptor_count: Option<i64> = None;
-        let mut zk_max_file_descriptor_count: Option<i64> = None;
+    fn build_response(response_body: &str) -> ZK4LWResult<Self::Response> {
+        // Parse response body into key/value pairs
+        let response_map = tab_separated_bytes_to_key_value(response_body)?;
 
-        let mut zk_followers: Option<i64> = None;
-        let mut zk_synced_followers: Option<i64> = None;
-        let mut zk_pending_syncs: Option<i64> = None;
-        let mut zk_last_proposal_size: Option<i64> = None;
-        let mut zk_max_proposal_size: Option<i64> = None;
-        let mut zk_min_proposal_size: Option<i64> = None;
-        let mut zk_extras = HashMap::new();
-
-        let lines = response.lines();
-
-        for line in lines {
-            let mut iter = line.split('\t');
-            match (iter.next().map(|s| s.trim()), iter.next().map(|s| s.trim())) {
-                (Some(key), Some(value)) => match key {
-                    "zk_version" => zk_version = Some(value.into()),
-                    "zk_avg_latency" => zk_avg_latency = Some(value.parse()?),
-                    "zk_max_latency" => zk_max_latency = Some(value.parse()?),
-                    "zk_min_latency" => zk_min_latency = Some(value.parse()?),
-                    "zk_packets_received" => zk_packets_received = Some(value.parse()?),
-                    "zk_packets_sent" => zk_packets_sent = Some(value.parse()?),
-                    "zk_num_alive_connections" => zk_num_alive_connections = Some(value.parse()?),
-                    "zk_outstanding_requests" => zk_outstanding_requests = Some(value.parse()?),
-                    "zk_server_state" => zk_server_state = Some(value.parse()?),
-                    "zk_znode_count" => zk_znode_count = Some(value.parse()?),
-                    "zk_watch_count" => zk_watch_count = Some(value.parse()?),
-                    "zk_ephemerals_count" => zk_ephemerals_count = Some(value.parse()?),
-                    "zk_approximate_data_size" => zk_approximate_data_size = Some(value.parse()?),
-                    "zk_open_file_descriptor_count" => zk_open_file_descriptor_count = Some(value.parse()?),
-                    "zk_max_file_descriptor_count" => zk_max_file_descriptor_count = Some(value.parse()?),
-
-                    "zk_followers" => zk_followers = Some(value.parse()?),
-                    "zk_synced_followers" => zk_synced_followers = Some(value.parse()?),
-                    "zk_pending_syncs" => zk_pending_syncs = Some(value.parse()?),
-                    "zk_last_proposal_size" => zk_last_proposal_size = Some(value.parse()?),
-                    "zk_max_proposal_size" => zk_max_proposal_size = Some(value.parse()?),
-                    "zk_min_proposal_size" => zk_min_proposal_size = Some(value.parse()?),
-                    _ => {
-                        zk_extras.insert(key.into(), value.into());
+        // Map by key to a specific field in the response
+        let mut response = ZK4LWMonitorResponse::default();
+        for (key, val) in response_map.into_iter() {
+            match key {
+                // NOTE: `zk_version` is too "dense" with details,
+                // so we split it into more useful, separate parts
+                "zk_version" => {
+                    // Extract the 'version'
+                    let version_split: Vec<&str> =
+                        val.split("-").filter(|x| !x.is_empty()).collect();
+                    if version_split.len() != 2 {
+                        return Err(ZK4LWError::ParseStringError(format!(
+                            "Unable to parse version from string: '{}'",
+                            val
+                        )));
                     }
-                },
-                _ => break,
+                    response.version = version_split.get(0).unwrap().trim().to_string();
+
+                    // Extract the 'build revision' and 'build date'
+                    let build_split: Vec<&str> = version_split.get(1).unwrap().split(",").collect();
+                    if build_split.len() != 2 {
+                        return Err(ZK4LWError::ParseStringError(format!(
+                            "Unable to parse build from string: '{}'",
+                            val
+                        )));
+                    }
+                    response.build_revision = build_split.get(0).unwrap().trim().to_string();
+                    response.build_date = build_split.get(1).unwrap().trim().to_string();
+                }
+                "zk_avg_latency" => response.latency.avg = val.parse()?,
+                "zk_max_latency" => response.latency.max = val.parse()?,
+                "zk_min_latency" => response.latency.min = val.parse()?,
+                "zk_packets_received" => response.packets_received = val.parse()?,
+                "zk_packets_sent" => response.packets_sent = val.parse()?,
+                "zk_num_alive_connections" => response.num_alive_connections = val.parse()?,
+                "zk_outstanding_requests" => response.outstanding_requests = val.parse()?,
+                "zk_server_state" => response.server_state = val.parse()?,
+                "zk_znode_count" => response.znode_count = val.parse()?,
+                "zk_watch_count" => response.watch_count = val.parse()?,
+                "zk_ephemerals_count" => response.ephemerals_count = val.parse()?,
+                "zk_approximate_data_size" => response.approximate_data_size = val.parse()?,
+                "zk_open_file_descriptor_count" => {
+                    response.open_file_descriptor_count = Some(val.parse()?)
+                }
+                "zk_max_file_descriptor_count" => {
+                    response.max_file_descriptor_count = Some(val.parse()?)
+                }
+                "zk_followers" => response.followers = Some(val.parse()?),
+                "zk_synced_followers" => response.synced_followers = Some(val.parse()?),
+                "zk_pending_syncs" => response.pending_syncs = Some(val.parse()?),
+                "zk_last_proposal_size" => response.last_proposal_size = Some(val.parse()?),
+                "zk_max_proposal_size" => response.max_proposal_size = Some(val.parse()?),
+                "zk_min_proposal_size" => response.min_proposal_size = Some(val.parse()?),
+                _ => {
+                    response.misc.insert(key.into(), val.into());
+                }
             }
         }
 
-        Ok(Self::Response {
-            // version
-            zk_version: unwrap_or_error!(zk_version),
-            // latency
-            zk_avg_latency: unwrap_or_error!(zk_avg_latency),
-            zk_max_latency: unwrap_or_error!(zk_max_latency),
-            zk_min_latency: unwrap_or_error!(zk_min_latency),
-            // packets
-            zk_packets_received: unwrap_or_error!(zk_packets_received),
-            zk_packets_sent: unwrap_or_error!(zk_packets_sent),
-            // connections & requests
-            zk_num_alive_connections: unwrap_or_error!(zk_num_alive_connections),
-            zk_outstanding_requests: unwrap_or_error!(zk_outstanding_requests),
-            // state
-            zk_server_state: unwrap_or_error!(zk_server_state),
-            // znodes
-            zk_znode_count: unwrap_or_error!(zk_znode_count),
-            zk_watch_count: unwrap_or_error!(zk_watch_count),
-            zk_ephemerals_count: unwrap_or_error!(zk_ephemerals_count),
-            // data size
-            zk_approximate_data_size: unwrap_or_error!(zk_approximate_data_size),
-            // file descriptors
-            zk_open_file_descriptor_count,
-            zk_max_file_descriptor_count,
-            // followers (only for leader)
-            zk_followers,
-            zk_synced_followers,
-            zk_pending_syncs,
-            // proposals (only for leader)
-            zk_last_proposal_size,
-            zk_max_proposal_size,
-            zk_min_proposal_size,
-            // unknown/new fields (only for leader)
-            zk_extras,
-        })
+        Ok(response)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::fs;
+
+    use crate::client::ZK4LWCommand;
+    use crate::commands::mntr::ZK4LWMonitor;
+    use crate::state::ZK4LWServerState::LEADER;
+
+    #[test]
+    fn should_build_response_from_zk34_monitor_response_body() {
+        let mntr_34_resp_body = fs::read_to_string("../../fixtures/3.4/mntr.response").unwrap();
+        let mntr_34_resp = ZK4LWMonitor::build_response(mntr_34_resp_body.as_str()).unwrap();
+
+        assert_eq!(mntr_34_resp.version, "3.4.14");
+        assert_eq!(
+            mntr_34_resp.build_revision,
+            "4c25d480e66aadd371de8bd2fd8da255ac140bcf"
+        );
+        assert_eq!(mntr_34_resp.build_date, "built on 03/06/2019 16:18 GMT");
+        assert_eq!(mntr_34_resp.latency.avg, 0.0);
+        assert_eq!(mntr_34_resp.latency.min, 0);
+        assert_eq!(mntr_34_resp.latency.max, 0);
+        assert_eq!(mntr_34_resp.packets_received, 2);
+        assert_eq!(mntr_34_resp.packets_sent, 1);
+        assert_eq!(mntr_34_resp.num_alive_connections, 1);
+        assert_eq!(mntr_34_resp.outstanding_requests, 0);
+        assert_eq!(mntr_34_resp.server_state, LEADER);
+        assert_eq!(mntr_34_resp.znode_count, 4);
+        assert_eq!(mntr_34_resp.watch_count, 0);
+        assert_eq!(mntr_34_resp.ephemerals_count, 0);
+        assert_eq!(mntr_34_resp.approximate_data_size, 27);
+        assert_eq!(mntr_34_resp.open_file_descriptor_count.unwrap(), 36);
+        assert_eq!(mntr_34_resp.max_file_descriptor_count.unwrap(), 1048576);
+        assert_eq!(mntr_34_resp.followers.unwrap(), 4);
+        assert_eq!(mntr_34_resp.synced_followers.unwrap(), 2);
+        assert_eq!(mntr_34_resp.pending_syncs.unwrap(), 0);
+        assert_eq!(mntr_34_resp.last_proposal_size.unwrap(), -1);
+        assert_eq!(mntr_34_resp.min_proposal_size.unwrap(), -1);
+        assert_eq!(mntr_34_resp.max_proposal_size.unwrap(), -1);
+        assert_eq!(mntr_34_resp.misc.len(), 1);
+        assert_eq!(
+            mntr_34_resp
+                .misc
+                .get("zk_fsync_threshold_exceed_count")
+                .unwrap(),
+            "0"
+        );
+    }
+
+    #[test]
+    fn should_build_response_from_zk35_monitor_response_body() {
+        let mntr_35_resp_body = fs::read_to_string("../../fixtures/3.5/mntr.response").unwrap();
+        let mntr_35_resp = ZK4LWMonitor::build_response(mntr_35_resp_body.as_str()).unwrap();
+
+        assert_eq!(mntr_35_resp.version, "3.5.7");
+        assert_eq!(
+            mntr_35_resp.build_revision,
+            "f0fdd52973d373ffd9c86b81d99842dc2c7f660e"
+        );
+        assert_eq!(mntr_35_resp.build_date, "built on 02/10/2020 11:30 GMT");
+        assert_eq!(mntr_35_resp.latency.avg, 0.0);
+        assert_eq!(mntr_35_resp.latency.min, 0);
+        assert_eq!(mntr_35_resp.latency.max, 0);
+        assert_eq!(mntr_35_resp.packets_received, 2);
+        assert_eq!(mntr_35_resp.packets_sent, 1);
+        assert_eq!(mntr_35_resp.num_alive_connections, 1);
+        assert_eq!(mntr_35_resp.outstanding_requests, 0);
+        assert_eq!(mntr_35_resp.server_state, LEADER);
+        assert_eq!(mntr_35_resp.znode_count, 5);
+        assert_eq!(mntr_35_resp.watch_count, 0);
+        assert_eq!(mntr_35_resp.ephemerals_count, 0);
+        assert_eq!(mntr_35_resp.approximate_data_size, 297);
+        assert_eq!(mntr_35_resp.open_file_descriptor_count.unwrap(), 58);
+        assert_eq!(mntr_35_resp.max_file_descriptor_count.unwrap(), 1048576);
+        assert_eq!(mntr_35_resp.followers.unwrap(), 4);
+        assert_eq!(mntr_35_resp.synced_followers.unwrap(), 2);
+        assert_eq!(mntr_35_resp.pending_syncs.unwrap(), 0);
+        assert_eq!(mntr_35_resp.last_proposal_size.unwrap(), -1);
+        assert_eq!(mntr_35_resp.min_proposal_size.unwrap(), -1);
+        assert_eq!(mntr_35_resp.max_proposal_size.unwrap(), -1);
+        assert_eq!(mntr_35_resp.misc.len(), 0);
+    }
+
+    #[test]
+    fn should_build_response_from_zk36_mntr_response_body() {
+        // TODO
     }
 }
