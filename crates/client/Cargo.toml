@@ -13,4 +13,4 @@ name = "zk4lw_client"
 path = "src/lib.rs"
 
 [dependencies]
-failure = "0.1.7"
+failure = "0.1.8"

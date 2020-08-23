@@ -14,5 +14,5 @@ name = "zk4lw_rest"
 path = "src/main.rs"
 
 [dependencies]
-failure = "0.1.7"
+failure = "0.1.8"
 zk4lw-client = { version = "0.0.1", path = "../client" }
