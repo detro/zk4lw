@@ -13,8 +13,18 @@ const COMMAND: &'static str = "mntr";
 
 /// Response to the `mntr` command
 ///
-/// The fields here are what's defined in the docs as of 2018/02/23.
-/// Additional fields are stored as strings within zk_extras.
+/// The fields are "divided" into 3 "classes":
+///
+/// * mapped & always present: they will always be in the response,
+///   and the value will always be valid
+/// * mapped & sometimes present: they will always be in the response,
+///   but their value is an `Option` that will be set to `None` if missing -
+///   a value can be missing either because the node is not a "Leader",
+///   or because the value is not reported by the specific instance of ZooKeeper
+///   against which the command was executed
+/// * unmapped: when a value hasn't been mapped (yet), its stored in the
+///   `misc` field, that is an hash-map - the idea is that we then release
+///   an update that maps it
 #[derive(Debug, Default)]
 pub struct ZK4LWMonitorResponse {
     // version
@@ -26,8 +36,19 @@ pub struct ZK4LWMonitorResponse {
     // packets
     pub packets_received: i64,
     pub packets_sent: i64,
-    // connections & requests
+    // connections
     pub num_alive_connections: i64,
+    pub connection_drop_count: Option<i64>,
+    pub connection_drop_probability: Option<f64>,
+    pub connection_rejected: Option<i64>,
+    pub connection_request_count: Option<i64>,
+    pub connection_revalidate_count: Option<i64>,
+    pub sessionless_connections_expired: Option<i64>,
+    // watchers
+    pub add_dead_watcher_stall_time: Option<i64>,
+    pub dead_watchers_cleared: Option<i64>,
+    pub dead_watchers_queued: Option<i64>,
+    // requests
     pub outstanding_requests: i64,
     // state
     pub server_state: ZK4LWServerState,
@@ -38,13 +59,17 @@ pub struct ZK4LWMonitorResponse {
     // data size
     pub approximate_data_size: i64,
     // file descriptors
-    pub open_file_descriptor_count: Option<i64>,
-    pub max_file_descriptor_count: Option<i64>,
-    // followers (only for leader)
-    pub followers: Option<i64>,
+    pub open_file_descriptor_count: i64,
+    pub max_file_descriptor_count: i64,
+    /// Learner members of the ensemble can either be "Followers" or "Observers"
+    /// NOTE: in version of ZK < 3.6.x, this field was known as "followers".
+    /// See: https://cwiki.apache.org/confluence/display/ZOOKEEPER/Upgrade+FAQ#UpgradeFAQ-Metric
+    pub learners: Option<i64>,
     pub synced_followers: Option<i64>,
     pub pending_syncs: Option<i64>,
-    // proposals (only for leader)
+    pub synced_non_voting_followers: Option<i64>,
+    pub synced_observers: Option<i64>,
+    // proposals
     pub last_proposal_size: Option<i64>,
     pub max_proposal_size: Option<i64>,
     pub min_proposal_size: Option<i64>,
@@ -95,27 +120,60 @@ impl ZK4LWCommand for ZK4LWMonitor {
                     response.build_revision = build_split.get(0).unwrap().trim().to_string();
                     response.build_date = build_split.get(1).unwrap().trim().to_string();
                 }
+                // latency
                 "zk_avg_latency" => response.latency.avg = val.parse()?,
                 "zk_max_latency" => response.latency.max = val.parse()?,
                 "zk_min_latency" => response.latency.min = val.parse()?,
+                // packets
                 "zk_packets_received" => response.packets_received = val.parse()?,
                 "zk_packets_sent" => response.packets_sent = val.parse()?,
+                // connections
                 "zk_num_alive_connections" => response.num_alive_connections = val.parse()?,
+                "zk_connection_drop_count" => response.connection_drop_count = Some(val.parse()?),
+                "zk_connection_drop_probability" => {
+                    response.connection_drop_probability = Some(val.parse()?)
+                }
+                "zk_connection_rejected" => response.connection_rejected = Some(val.parse()?),
+                "zk_connection_request_count" => {
+                    response.connection_request_count = Some(val.parse()?)
+                }
+                "zk_connection_revalidate_count" => {
+                    response.connection_revalidate_count = Some(val.parse()?)
+                }
+                "zk_sessionless_connections_expired" => {
+                    response.sessionless_connections_expired = Some(val.parse()?)
+                }
+                // watchers
+                "zk_add_dead_watcher_stall_time" => {
+                    response.add_dead_watcher_stall_time = Some(val.parse()?)
+                }
+                "zk_dead_watchers_cleared" => response.dead_watchers_cleared = Some(val.parse()?),
+                "zk_dead_watchers_queued" => response.dead_watchers_queued = Some(val.parse()?),
+                // requests
                 "zk_outstanding_requests" => response.outstanding_requests = val.parse()?,
+                // state
                 "zk_server_state" => response.server_state = val.parse()?,
+                // znodes
                 "zk_znode_count" => response.znode_count = val.parse()?,
                 "zk_watch_count" => response.watch_count = val.parse()?,
                 "zk_ephemerals_count" => response.ephemerals_count = val.parse()?,
+                // data size
                 "zk_approximate_data_size" => response.approximate_data_size = val.parse()?,
+                // file descriptors
                 "zk_open_file_descriptor_count" => {
-                    response.open_file_descriptor_count = Some(val.parse()?)
+                    response.open_file_descriptor_count = val.parse()?
                 }
                 "zk_max_file_descriptor_count" => {
-                    response.max_file_descriptor_count = Some(val.parse()?)
+                    response.max_file_descriptor_count = val.parse()?
                 }
-                "zk_followers" => response.followers = Some(val.parse()?),
+                // followers
+                "zk_followers" => response.learners = Some(val.parse()?), //< NOTE: synonym of "zk_learners" in ZK < 3.6.x
+                "zk_learners" => response.learners = Some(val.parse()?),
                 "zk_synced_followers" => response.synced_followers = Some(val.parse()?),
                 "zk_pending_syncs" => response.pending_syncs = Some(val.parse()?),
+                "zk_synced_non_voting_followers" => response.synced_non_voting_followers = Some(val.parse()?),
+                "zk_synced_observers" => response.synced_observers = Some(val.parse()?),
+                // proposals
                 "zk_last_proposal_size" => response.last_proposal_size = Some(val.parse()?),
                 "zk_max_proposal_size" => response.max_proposal_size = Some(val.parse()?),
                 "zk_min_proposal_size" => response.min_proposal_size = Some(val.parse()?),
@@ -160,9 +218,9 @@ mod tests {
         assert_eq!(mntr_34_resp.watch_count, 0);
         assert_eq!(mntr_34_resp.ephemerals_count, 0);
         assert_eq!(mntr_34_resp.approximate_data_size, 27);
-        assert_eq!(mntr_34_resp.open_file_descriptor_count.unwrap(), 36);
-        assert_eq!(mntr_34_resp.max_file_descriptor_count.unwrap(), 1048576);
-        assert_eq!(mntr_34_resp.followers.unwrap(), 4);
+        assert_eq!(mntr_34_resp.open_file_descriptor_count, 36);
+        assert_eq!(mntr_34_resp.max_file_descriptor_count, 1048576);
+        assert_eq!(mntr_34_resp.learners.unwrap(), 4);
         assert_eq!(mntr_34_resp.synced_followers.unwrap(), 2);
         assert_eq!(mntr_34_resp.pending_syncs.unwrap(), 0);
         assert_eq!(mntr_34_resp.last_proposal_size.unwrap(), -1);
@@ -201,9 +259,9 @@ mod tests {
         assert_eq!(mntr_35_resp.watch_count, 0);
         assert_eq!(mntr_35_resp.ephemerals_count, 0);
         assert_eq!(mntr_35_resp.approximate_data_size, 297);
-        assert_eq!(mntr_35_resp.open_file_descriptor_count.unwrap(), 58);
-        assert_eq!(mntr_35_resp.max_file_descriptor_count.unwrap(), 1048576);
-        assert_eq!(mntr_35_resp.followers.unwrap(), 4);
+        assert_eq!(mntr_35_resp.open_file_descriptor_count, 58);
+        assert_eq!(mntr_35_resp.max_file_descriptor_count, 1048576);
+        assert_eq!(mntr_35_resp.learners.unwrap(), 4);
         assert_eq!(mntr_35_resp.synced_followers.unwrap(), 2);
         assert_eq!(mntr_35_resp.pending_syncs.unwrap(), 0);
         assert_eq!(mntr_35_resp.last_proposal_size.unwrap(), -1);
@@ -235,16 +293,17 @@ mod tests {
         assert_eq!(mntr_36_resp.watch_count, 0);
         assert_eq!(mntr_36_resp.ephemerals_count, 0);
         assert_eq!(mntr_36_resp.approximate_data_size, 297);
-        assert_eq!(mntr_36_resp.open_file_descriptor_count.unwrap(), 67);
-        assert_eq!(mntr_36_resp.max_file_descriptor_count.unwrap(), 1048576);
-        // TODO absent:
-        //assert_eq!(mntr_36_resp.followers.unwrap(), 4);
+        assert_eq!(mntr_36_resp.open_file_descriptor_count, 67);
+        assert_eq!(mntr_36_resp.max_file_descriptor_count, 1048576);
+        assert_eq!(mntr_36_resp.learners.unwrap(), 4);
         assert_eq!(mntr_36_resp.synced_followers.unwrap(), 2);
         assert_eq!(mntr_36_resp.pending_syncs.unwrap(), 0);
+        assert_eq!(mntr_36_resp.synced_non_voting_followers.unwrap(), 0);
+        assert_eq!(mntr_36_resp.synced_observers.unwrap(), 2);
         assert_eq!(mntr_36_resp.last_proposal_size.unwrap(), -1);
         assert_eq!(mntr_36_resp.min_proposal_size.unwrap(), -1);
         assert_eq!(mntr_36_resp.max_proposal_size.unwrap(), -1);
         // TODO lots of fields to add:
-        //assert_eq!(mntr_36_resp.misc.len(), 0);
+        // assert_eq!(mntr_36_resp.misc.len(), 0);
     }
 }
