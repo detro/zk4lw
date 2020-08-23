@@ -2,13 +2,14 @@
 
 use std::{default, fmt, str};
 
-use super::result::ZK4LWError;
+use crate::errors::*;
 
 const STATE_LEADER: &'static str = "leader";
 const STATE_FOLLOWER: &'static str = "follower";
 const STATE_STANDALONE: &'static str = "standalone";
 
 /// The state of a Zookeeper server, as reported for example by the Monitor command
+#[non_exhaustive]
 #[derive(PartialEq)]
 pub enum ZK4LWServerState {
     LEADER,

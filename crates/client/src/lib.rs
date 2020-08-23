@@ -2,7 +2,7 @@
 extern crate failure;
 
 pub mod client;
-#[macro_use]
+pub mod errors;
 pub mod result;
 pub mod commands;
 pub mod parsing;

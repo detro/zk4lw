@@ -8,7 +8,7 @@ use std::{
     net, str,
 };
 
-use super::result::*;
+use crate::result::*;
 
 /// Trait that defines how a Zookeeper "Four Letter Words" command looks like
 pub trait ZK4LWCommand {
