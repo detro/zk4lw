@@ -8,14 +8,14 @@ tickTime=2000
 maxClientCnxns=60
 minSessionTimeout=4000
 maxSessionTimeout=40000
-serverId=10
+serverId=30
 initLimit=5
 syncLimit=2
 electionAlg=3
 electionPort=3888
 quorumPort=2888
 peerType=0
-membership:
+membership: 
 server.51=zk51:2888:3888:observer;0.0.0.0:2181
 server.20=zk20:2888:3888:participant;0.0.0.0:2181
 server.41=zk41:2888:3888:observer;0.0.0.0:2181

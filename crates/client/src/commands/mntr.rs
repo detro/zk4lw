@@ -209,8 +209,8 @@ mod tests {
         assert_eq!(mntr_34_resp.latency.avg, 0.0);
         assert_eq!(mntr_34_resp.latency.min, 0);
         assert_eq!(mntr_34_resp.latency.max, 0);
-        assert_eq!(mntr_34_resp.packets_received, 2);
-        assert_eq!(mntr_34_resp.packets_sent, 1);
+        assert_eq!(mntr_34_resp.packets_received, 5);
+        assert_eq!(mntr_34_resp.packets_sent, 4);
         assert_eq!(mntr_34_resp.num_alive_connections, 1);
         assert_eq!(mntr_34_resp.outstanding_requests, 0);
         assert_eq!(mntr_34_resp.server_state, LEADER);
@@ -241,17 +241,17 @@ mod tests {
         let mntr_35_resp_body = fs::read_to_string("../../fixtures/3.5/mntr.response").unwrap();
         let mntr_35_resp = ZK4LWMonitor::build_response(mntr_35_resp_body.as_str()).unwrap();
 
-        assert_eq!(mntr_35_resp.version, "3.5.7");
+        assert_eq!(mntr_35_resp.version, "3.5.8");
         assert_eq!(
             mntr_35_resp.build_revision,
-            "f0fdd52973d373ffd9c86b81d99842dc2c7f660e"
+            "f439ca583e70862c3068a1f2a7d4d068eec33315"
         );
-        assert_eq!(mntr_35_resp.build_date, "built on 02/10/2020 11:30 GMT");
+        assert_eq!(mntr_35_resp.build_date, "built on 05/04/2020 15:07 GMT");
         assert_eq!(mntr_35_resp.latency.avg, 0.0);
         assert_eq!(mntr_35_resp.latency.min, 0);
         assert_eq!(mntr_35_resp.latency.max, 0);
-        assert_eq!(mntr_35_resp.packets_received, 2);
-        assert_eq!(mntr_35_resp.packets_sent, 1);
+        assert_eq!(mntr_35_resp.packets_received, 3);
+        assert_eq!(mntr_35_resp.packets_sent, 2);
         assert_eq!(mntr_35_resp.num_alive_connections, 1);
         assert_eq!(mntr_35_resp.outstanding_requests, 0);
         assert_eq!(mntr_35_resp.server_state, LEADER);
@@ -284,8 +284,8 @@ mod tests {
         assert_eq!(mntr_36_resp.latency.avg, 0.0);
         assert_eq!(mntr_36_resp.latency.min, 0);
         assert_eq!(mntr_36_resp.latency.max, 0);
-        assert_eq!(mntr_36_resp.packets_received, 2);
-        assert_eq!(mntr_36_resp.packets_sent, 3);
+        assert_eq!(mntr_36_resp.packets_received, 4);
+        assert_eq!(mntr_36_resp.packets_sent, 9);
         assert_eq!(mntr_36_resp.num_alive_connections, 1);
         assert_eq!(mntr_36_resp.outstanding_requests, 0);
         assert_eq!(mntr_36_resp.server_state, LEADER);

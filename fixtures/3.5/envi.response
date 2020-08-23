@@ -1,10 +1,10 @@
 Environment:
-zookeeper.version=3.5.7-f0fdd52973d373ffd9c86b81d99842dc2c7f660e, built on 02/10/2020 11:30 GMT
-host.name=zk10
-java.version=11.0.7
-java.vendor=Oracle Corporation
+zookeeper.version=3.5.8-f439ca583e70862c3068a1f2a7d4d068eec33315, built on 05/04/2020 15:07 GMT
+host.name=zk30
+java.version=11.0.8
+java.vendor=N/A
 java.home=/usr/local/openjdk-11
-java.class.path=/apache-zookeeper-3.5.7-bin/bin/../zookeeper-server/target/classes:/apache-zookeeper-3.5.7-bin/bin/../build/classes:/apache-zookeeper-3.5.7-bin/bin/../zookeeper-server/target/lib/*.jar:/apache-zookeeper-3.5.7-bin/bin/../build/lib/*.jar:/apache-zookeeper-3.5.7-bin/bin/../lib/zookeeper-jute-3.5.7.jar:/apache-zookeeper-3.5.7-bin/bin/../lib/zookeeper-3.5.7.jar:/apache-zookeeper-3.5.7-bin/bin/../lib/slf4j-log4j12-1.7.25.jar:/apache-zookeeper-3.5.7-bin/bin/../lib/slf4j-api-1.7.25.jar:/apache-zookeeper-3.5.7-bin/bin/../lib/netty-transport-native-unix-common-4.1.45.Final.jar:/apache-zookeeper-3.5.7-bin/bin/../lib/netty-transport-native-epoll-4.1.45.Final.jar:/apache-zookeeper-3.5.7-bin/bin/../lib/netty-transport-4.1.45.Final.jar:/apache-zookeeper-3.5.7-bin/bin/../lib/netty-resolver-4.1.45.Final.jar:/apache-zookeeper-3.5.7-bin/bin/../lib/netty-handler-4.1.45.Final.jar:/apache-zookeeper-3.5.7-bin/bin/../lib/netty-common-4.1.45.Final.jar:/apache-zookeeper-3.5.7-bin/bin/../lib/netty-codec-4.1.45.Final.jar:/apache-zookeeper-3.5.7-bin/bin/../lib/netty-buffer-4.1.45.Final.jar:/apache-zookeeper-3.5.7-bin/bin/../lib/log4j-1.2.17.jar:/apache-zookeeper-3.5.7-bin/bin/../lib/json-simple-1.1.1.jar:/apache-zookeeper-3.5.7-bin/bin/../lib/jline-2.11.jar:/apache-zookeeper-3.5.7-bin/bin/../lib/jetty-util-9.4.24.v20191120.jar:/apache-zookeeper-3.5.7-bin/bin/../lib/jetty-servlet-9.4.24.v20191120.jar:/apache-zookeeper-3.5.7-bin/bin/../lib/jetty-server-9.4.24.v20191120.jar:/apache-zookeeper-3.5.7-bin/bin/../lib/jetty-security-9.4.24.v20191120.jar:/apache-zookeeper-3.5.7-bin/bin/../lib/jetty-io-9.4.24.v20191120.jar:/apache-zookeeper-3.5.7-bin/bin/../lib/jetty-http-9.4.24.v20191120.jar:/apache-zookeeper-3.5.7-bin/bin/../lib/javax.servlet-api-3.1.0.jar:/apache-zookeeper-3.5.7-bin/bin/../lib/jackson-databind-2.9.10.2.jar:/apache-zookeeper-3.5.7-bin/bin/../lib/jackson-core-2.9.10.jar:/apache-zookeeper-3.5.7-bin/bin/../lib/jackson-annotations-2.9.10.jar:/apache-zookeeper-3.5.7-bin/bin/../lib/commons-cli-1.2.jar:/apache-zookeeper-3.5.7-bin/bin/../lib/audience-annotations-0.5.0.jar:/apache-zookeeper-3.5.7-bin/bin/../zookeeper-*.jar:/apache-zookeeper-3.5.7-bin/bin/../zookeeper-server/src/main/resources/lib/*.jar:/conf:
+java.class.path=/apache-zookeeper-3.5.8-bin/bin/../zookeeper-server/target/classes:/apache-zookeeper-3.5.8-bin/bin/../build/classes:/apache-zookeeper-3.5.8-bin/bin/../zookeeper-server/target/lib/*.jar:/apache-zookeeper-3.5.8-bin/bin/../build/lib/*.jar:/apache-zookeeper-3.5.8-bin/bin/../lib/zookeeper-jute-3.5.8.jar:/apache-zookeeper-3.5.8-bin/bin/../lib/zookeeper-3.5.8.jar:/apache-zookeeper-3.5.8-bin/bin/../lib/slf4j-log4j12-1.7.25.jar:/apache-zookeeper-3.5.8-bin/bin/../lib/slf4j-api-1.7.25.jar:/apache-zookeeper-3.5.8-bin/bin/../lib/netty-transport-native-unix-common-4.1.48.Final.jar:/apache-zookeeper-3.5.8-bin/bin/../lib/netty-transport-native-epoll-4.1.48.Final.jar:/apache-zookeeper-3.5.8-bin/bin/../lib/netty-transport-4.1.48.Final.jar:/apache-zookeeper-3.5.8-bin/bin/../lib/netty-resolver-4.1.48.Final.jar:/apache-zookeeper-3.5.8-bin/bin/../lib/netty-handler-4.1.48.Final.jar:/apache-zookeeper-3.5.8-bin/bin/../lib/netty-common-4.1.48.Final.jar:/apache-zookeeper-3.5.8-bin/bin/../lib/netty-codec-4.1.48.Final.jar:/apache-zookeeper-3.5.8-bin/bin/../lib/netty-buffer-4.1.48.Final.jar:/apache-zookeeper-3.5.8-bin/bin/../lib/log4j-1.2.17.jar:/apache-zookeeper-3.5.8-bin/bin/../lib/json-simple-1.1.1.jar:/apache-zookeeper-3.5.8-bin/bin/../lib/jline-2.11.jar:/apache-zookeeper-3.5.8-bin/bin/../lib/jetty-util-9.4.24.v20191120.jar:/apache-zookeeper-3.5.8-bin/bin/../lib/jetty-servlet-9.4.24.v20191120.jar:/apache-zookeeper-3.5.8-bin/bin/../lib/jetty-server-9.4.24.v20191120.jar:/apache-zookeeper-3.5.8-bin/bin/../lib/jetty-security-9.4.24.v20191120.jar:/apache-zookeeper-3.5.8-bin/bin/../lib/jetty-io-9.4.24.v20191120.jar:/apache-zookeeper-3.5.8-bin/bin/../lib/jetty-http-9.4.24.v20191120.jar:/apache-zookeeper-3.5.8-bin/bin/../lib/javax.servlet-api-3.1.0.jar:/apache-zookeeper-3.5.8-bin/bin/../lib/jackson-databind-2.10.3.jar:/apache-zookeeper-3.5.8-bin/bin/../lib/jackson-core-2.10.3.jar:/apache-zookeeper-3.5.8-bin/bin/../lib/jackson-annotations-2.10.3.jar:/apache-zookeeper-3.5.8-bin/bin/../lib/commons-cli-1.2.jar:/apache-zookeeper-3.5.8-bin/bin/../lib/audience-annotations-0.5.0.jar:/apache-zookeeper-3.5.8-bin/bin/../zookeeper-*.jar:/apache-zookeeper-3.5.8-bin/bin/../zookeeper-server/src/main/resources/lib/*.jar:/conf:
 java.library.path=/usr/java/packages/lib:/usr/lib64:/lib64:/lib:/usr/lib
 java.io.tmpdir=/tmp
 java.compiler=<NA>
@@ -13,7 +13,7 @@ os.arch=amd64
 os.version=4.19.76-linuxkit
 user.name=zookeeper
 user.home=/home/zookeeper
-user.dir=/apache-zookeeper-3.5.7-bin
-os.memory.free=21MB
+user.dir=/apache-zookeeper-3.5.8-bin
+os.memory.free=36MB
 os.memory.max=1000MB
-os.memory.total=32MB
+os.memory.total=48MB
